@@ -2,6 +2,9 @@
 declare(strict_types=1);
 namespace ParagonIE\Herd\Tests;
 
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\ConnectException;
+use ParagonIE\Certainty\RemoteFetch;
 use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\EasyDB\Factory;
 use ParagonIE\Herd\{
@@ -23,14 +26,14 @@ class HistoryTest extends TestCase
 
     public function setUp()
     {
-
         $this->db = Factory::create('sqlite:' . __DIR__ . '/empty.sql');
-        $this->db->beginTransaction();
-    }
-
-    public function tearDown()
-    {
-        $this->db->rollBack();
+        try {
+            (new RemoteFetch())
+                ->getLatestBundle()
+                ->getFilePath();
+        } catch (ConnectException $ex) {
+            $this->markTestSkipped('Cannot connect using TLSv1.2');
+        }
     }
 
     /**
@@ -46,6 +49,10 @@ class HistoryTest extends TestCase
         );
         $history = new History($herd);
 
-        $this->assertTrue($history->transcribe(false));
+        $this->assertEquals('', $herd->getLatestSummaryHash());
+        $this->assertTrue($history->transcribe());
+        $this->assertNotEquals('', $herd->getLatestSummaryHash());
+        $this->db->query('DELETE FROM herd_history');
+        $this->assertEquals('', $herd->getLatestSummaryHash());
     }
 }

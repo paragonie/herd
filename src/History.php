@@ -52,6 +52,8 @@ class History
             return true;
         }
         $db = $this->herd->getDatabase();
+
+        // Don't wrap this in a transaction unless told to:
         if ($useTransaction) {
             $db->beginTransaction();
         }
@@ -109,11 +111,13 @@ class History
             }
         }
         if ($inserts === 0) {
+            // This should not be rolled back unless told to:
             if ($useTransaction) {
                 $db->rollBack();
             }
             return false;
         }
+        // This should not be committed unless $useTransaction is TRUE:
         if ($useTransaction) {
             return $db->commit();
         }
