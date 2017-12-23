@@ -16,4 +16,4 @@ maintains a local snapshot of the current state of affairs for:
 * Products
   * Releases
 
-
+This is an experimental project, and very much a Work-in-Porgress.
