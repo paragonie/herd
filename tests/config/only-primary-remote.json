@@ -1,0 +1,15 @@
+{
+  "core-vendor": "paragonie",
+  "remotes": [
+    {
+      "url": "https://chronicle-public-test.paragonie.com/chronicle",
+      "public-key": "3BK4hOYTWJbLV5QdqS-DFKEYOMKd-G5M9BvfbqG1ICI=",
+      "primary": true
+    },
+    {
+      "url": "https://localhost",
+      "public-key": "3BK4hOYTWJbLV5QdqS-DFKEYOMKd-G5M9BvfbqG1ICI=",
+      "primary": true
+    }
+  ]
+}

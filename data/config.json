@@ -1,0 +1,9 @@
+{
+  "core-vendor": "paragonie",
+  "policies": {
+    "core-vendor-manage-keys-allow": false,
+    "core-vendor-manage-keys-auto": false,
+    "quorum": 0
+  },
+  "remotes": []
+}

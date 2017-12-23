@@ -1,0 +1,40 @@
+{
+  "name": "paragonie/herd",
+  "description": "Hash-Ensured Replicated Database",
+  "license": "ISC",
+  "type": "library",
+  "authors": [
+    {
+      "name": "Paragon Initiative Enterprises",
+      "email": "security@paragonie.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "ParagonIE\\Herd\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "ParagonIE\\Herd\\Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "php": "^7",
+    "guzzlehttp/guzzle": "^6",
+    "paragonie/blakechain": "^1",
+    "paragonie/certainty": "^1",
+    "paragonie/constant_time_encoding": "^2",
+    "paragonie/easydb": "^2.5",
+    "paragonie/sapient": "^1",
+    "paragonie/sodium_compat": "^1.4"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6|^7",
+    "vimeo/psalm": "^0.3"
+  },
+  "scripts": {
+    "static-analysis": "psalm",
+    "test": "phpunit"
+  }
+}

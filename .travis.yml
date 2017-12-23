@@ -1,0 +1,15 @@
+language: php
+
+php:
+
+- 7.2
+
+before_install:
+- composer self-update
+- composer update
+- php tests/create-sqlite-database.php tests/empty.sql
+
+script:
+
+- vendor/bin/phpunit
+- vendor/bin/psalm
