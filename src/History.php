@@ -279,7 +279,9 @@ class History
                     'history_create' => $historyID,
                     'trusted' => true,
                     'vendor' => $vendorID,
-                    'name' => $opBody['name'] ?? $db->cell(
+                    'name' => $opBody['name']
+                            ??
+                        $db->cell(
                             'SELECT summaryhash FROM herd_history WHERE id = ?',
                             $historyID
                         ),
