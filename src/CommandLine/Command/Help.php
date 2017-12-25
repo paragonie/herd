@@ -104,7 +104,10 @@ class Help implements CommandInterface
          * @var array $usageInfo
          */
         foreach ($commands as $command => $usageInfo) {
-            echo \str_repeat('-', $w - 1), PHP_EOL;
+            echo \str_repeat('-', $maxLength + 2),
+                '+',
+                \str_repeat('-', $w - $maxLength - 3),
+                PHP_EOL;
             echo \str_pad($command, $maxLength + 2, ' ', STR_PAD_RIGHT),
                 '| ';
 
