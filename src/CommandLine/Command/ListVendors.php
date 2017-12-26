@@ -76,7 +76,7 @@ class ListVendors implements CommandInterface
                         name LIKE ?
                     ORDER BY name ASC
                 ",
-                $arg1
+                $db->escapeLikeValue($arg1) . '%'
             );
         }
 
