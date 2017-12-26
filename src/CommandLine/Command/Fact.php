@@ -110,6 +110,17 @@ class Fact implements CommandInterface
      */
     public function usageInfo(): array
     {
-        return [];
+        return [
+            'name' => 'Add remote source',
+            'usage' => 'shepherd fact <summary-hash>',
+            'options' => [
+                'Configuration file' => [
+                    'Examples' => [
+                        '-c /path/to/file',
+                        '--config=/path/to/file'
+                    ]
+                ]
+            ]
+        ];
     }
 }

@@ -102,6 +102,17 @@ class Transcribe implements CommandInterface
      */
     public function usageInfo(): array
     {
-        return [];
+        return [
+            'name' => 'Update local history from Chronicle',
+            'usage' => 'shepherd transcribe',
+            'options' => [
+                'Configuration file' => [
+                    'Examples' => [
+                        '-c /path/to/file',
+                        '--config=/path/to/file'
+                    ]
+                ]
+            ]
+        ];
     }
 }

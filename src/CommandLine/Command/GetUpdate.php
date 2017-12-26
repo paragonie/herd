@@ -131,6 +131,17 @@ class GetUpdate implements CommandInterface
      */
     public function usageInfo(): array
     {
-        return [];
+        return [
+            'name' => 'Get update information',
+            'usage' => 'shepherd get-update <vendor> <product> <version>',
+            'options' => [
+                'Configuration file' => [
+                    'Examples' => [
+                        '-c /path/to/file',
+                        '--config=/path/to/file'
+                    ]
+                ]
+            ]
+        ];
     }
 }

@@ -124,6 +124,17 @@ class VendorKeys implements CommandInterface
      */
     public function usageInfo(): array
     {
-        return [];
+        return [
+            'name' => 'List public keys for vendor',
+            'usage' => 'shepherd vendor-keys <vendor>',
+            'options' => [
+                'Configuration file' => [
+                    'Examples' => [
+                        '-c /path/to/file',
+                        '--config=/path/to/file'
+                    ]
+                ]
+            ]
+        ];
     }
 }

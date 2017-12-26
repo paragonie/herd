@@ -125,6 +125,17 @@ class ListVendors implements CommandInterface
      */
     public function usageInfo(): array
     {
-        return [];
+        return [
+            'name' => 'List/search vendors',
+            'usage' => 'shepherd list-vendors <search>?',
+            'options' => [
+                'Configuration file' => [
+                    'Examples' => [
+                        '-c /path/to/file',
+                        '--config=/path/to/file'
+                    ]
+                ]
+            ]
+        ];
     }
 }

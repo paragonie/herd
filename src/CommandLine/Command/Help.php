@@ -107,34 +107,86 @@ class Help implements CommandInterface
 
         // Header
         echo \str_pad('Command', $maxLength + 2, ' ', STR_PAD_RIGHT),
-            '| Information',
+        '| Information',
+        PHP_EOL;
+
+        /**
+         * @var string $command
+         * @var array<string, string> $usageInfo
+         */
+        foreach ($commands as $command => $usageInfo) {
+            echo \str_repeat('-', $maxLength + 2),
+            '+',
+            \str_repeat('-', $w - $maxLength - 3),
             PHP_EOL;
+            echo \str_pad($command, $maxLength + 2, ' ', STR_PAD_RIGHT),
+            '| ';
+
+            // Display format. Temporarily, JSON.
+            /** @var string $encoded */
+            $encoded = $usageInfo['name'] ?? $command;
+            $encoded .= PHP_EOL . PHP_EOL;
+            $encoded .= (string) ($usageInfo['usage'] ?? ('shepherd ' . $command));
+
+            $usage = \explode(PHP_EOL, $encoded);
+            echo \implode(PHP_EOL . \str_repeat(' ', $maxLength + 2 ). '| ', $usage);
+            echo PHP_EOL;
+        }
+        return 0;
+    }
+
+    /**
+     * @param string $arg
+     * @return int
+     */
+    public function getCommandInfo(string $arg): int
+    {
+        $commands = $this->getCommands();
+        if (!\array_key_exists($arg, $commands)) {
+            echo 'Command not found', PHP_EOL;
+            return 2;
+        }
+
+        $maxLength = 7;
+        /** @var string $key */
+        foreach (\array_keys($commands) as $key) {
+            $maxLength = \max($maxLength, \strlen($key));
+        }
+        /**
+         * @var int $w
+         * @var int $h
+         */
+        list($w, $h) = $this->getScreenSize();
+
+        // Header
+        echo \str_pad('Command', $maxLength + 2, ' ', STR_PAD_RIGHT),
+        '| Information',
+        PHP_EOL;
 
         /**
          * @var string $command
          * @var array $usageInfo
          */
-        foreach ($commands as $command => $usageInfo) {
-            echo \str_repeat('-', $maxLength + 2),
-                '+',
-                \str_repeat('-', $w - $maxLength - 3),
-                PHP_EOL;
-            echo \str_pad($command, $maxLength + 2, ' ', STR_PAD_RIGHT),
-                '| ';
+        $usageInfo = $commands[$arg];
+        echo \str_repeat('-', $maxLength + 2),
+        '+',
+        \str_repeat('-', $w - $maxLength - 3),
+        PHP_EOL;
+        echo \str_pad($arg, $maxLength + 2, ' ', STR_PAD_RIGHT),
+        '| ';
 
-            // Display format. Temporarily, JSON.
-            $encoded = \json_encode($usageInfo, JSON_PRETTY_PRINT);
-            if (!\is_string($encoded)) {
-                continue;
-            }
-            if ($encoded === '[]') {
-                echo '(No help information available.)', PHP_EOL;
-                continue;
-            }
-            $usage = \explode(PHP_EOL, $encoded);
-            echo \implode(PHP_EOL . \str_repeat(' ', $maxLength + 2 ). '| ', $usage);
-            echo PHP_EOL;
+        // Display format. Temporarily, JSON.
+        $encoded = \json_encode($usageInfo, JSON_PRETTY_PRINT);
+        if (!\is_string($encoded)) {
+            return 1;
         }
+        if ($encoded === '[]') {
+            echo '(No help information available.)', PHP_EOL;
+            return 1;
+        }
+        $usage = \explode(PHP_EOL, $encoded);
+        echo \implode(PHP_EOL . \str_repeat(' ', $maxLength + 2 ). '| ', $usage);
+        echo PHP_EOL;
         return 0;
     }
 
@@ -147,8 +199,9 @@ class Help implements CommandInterface
         if (empty($args)) {
             return $this->listCommands();
         }
-
-        return 0;
+        /** @var string $key */
+        $key = \array_shift($args);
+        return $this->getCommandInfo($key);
     }
 
     /**
