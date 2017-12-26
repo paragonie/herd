@@ -27,7 +27,8 @@
     "paragonie/constant_time_encoding": "^2",
     "paragonie/easydb": "^2.5",
     "paragonie/sapient": "^1",
-    "paragonie/sodium_compat": "^1.4"
+    "paragonie/sodium_compat": "^1.4",
+    "ulrichsg/getopt-php": "^3"
   },
   "require-dev": {
     "phpunit/phpunit": "^6|^7",

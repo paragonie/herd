@@ -1,5 +1,6 @@
 {
   "core-vendor": "paragonie",
+  "database": [],
   "policies": {
     "core-vendor-manage-keys-allow": false,
     "core-vendor-manage-keys-auto": false,
