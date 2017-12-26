@@ -51,9 +51,9 @@ trait DatabaseTrait
         }
         return Factory::create(
             (string) $data['database']['dsn'],
-            (string) $data['database']['username'] ?? '',
-            (string) $data['database']['password'] ?? '',
-            (array) $data['database']['options'] ?? []
+            (string) ($data['database']['username'] ?? ''),
+            (string) ($data['database']['password'] ?? ''),
+            (array) ($data['database']['options'] ?? [])
         );
     }
 }

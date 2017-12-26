@@ -88,6 +88,7 @@ class History
                         'hash' => $up['hash'],
                         'summaryhash' => $up['summary'],
                         'publickey' => $up['publickey'],
+                        'created' => $up['created'],
                         'signature' => $up['signature']
                     ]
                 );
@@ -98,7 +99,7 @@ class History
                 );
                 try {
                     $this->parseContentsAndInsert($up['contents'], (int)$historyID);
-                    $$db->update(
+                    $db->update(
                         'herd_history',
                         ['accepted' => true],
                         ['id' => $historyID]

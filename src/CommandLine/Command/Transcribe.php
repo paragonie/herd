@@ -3,13 +3,16 @@ declare(strict_types=1);
 namespace ParagonIE\Herd\CommandLine\Command;
 
 use GetOpt\{
+    GetOpt,
     Operand,
     Option
 };
 use ParagonIE\Herd\CommandLine\{
     CommandInterface,
+    ConfigurableTrait,
     DatabaseTrait
 };
+use ParagonIE\Herd\Config;
 use ParagonIE\Herd\Data\Local;
 use ParagonIE\Herd\Exception\{
     EncodingError,
@@ -24,6 +27,7 @@ use ParagonIE\Herd\History;
  */
 class Transcribe implements CommandInterface
 {
+    use ConfigurableTrait;
     use DatabaseTrait;
 
     /**
@@ -31,7 +35,9 @@ class Transcribe implements CommandInterface
      */
     public function getOptions(): array
     {
-        return [];
+        return [
+            new Option('c', 'config', GetOpt::REQUIRED_ARGUMENT)
+        ];
     }
 
     /**
@@ -52,7 +58,8 @@ class Transcribe implements CommandInterface
     {
         $history = new History(
             new Herd(
-                new Local($this->getDatabase())
+                new Local($this->getDatabase($this->configPath)),
+                Config::fromFile($this->configPath)
             )
         );
         try {
@@ -69,11 +76,22 @@ class Transcribe implements CommandInterface
      * Use the options provided by GetOpt to populate class properties
      * for this Command object.
      *
-     * @param array $args
+     * @param array<string, string> $args
      * @return self
+     * @throws \Exception
      */
     public function setOpts(array $args = [])
     {
+        if (isset($args['config'])) {
+            $this->setConfigPath($args['config']);
+        } elseif (isset($args['c'])) {
+            $this->setConfigPath($args['c']);
+        } else {
+            $this->setConfigPath(
+                \dirname(\dirname(\dirname(__DIR__))) .
+                '/data/config.json'
+            );
+        }
         return $this;
     }
 
