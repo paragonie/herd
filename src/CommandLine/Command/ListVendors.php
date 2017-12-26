@@ -52,6 +52,7 @@ class ListVendors implements CommandInterface
     {
         $db = $this->getDatabase($this->configPath);
         if (empty($args)) {
+            /** @var array<string, string> $data */
             $data = $db->run(
                 "
                 SELECT
