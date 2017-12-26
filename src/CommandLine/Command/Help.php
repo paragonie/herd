@@ -23,6 +23,14 @@ class Help implements CommandInterface
     }
 
     /**
+     * @return array<int, Operand>
+     */
+    public function getOperands(): array
+    {
+        return [];
+    }
+
+    /**
      * @return array<string, array>
      */
     public function getCommands(): array

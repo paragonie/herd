@@ -25,6 +25,14 @@ class VendorKeys implements CommandInterface
     }
 
     /**
+     * @return array<int, Operand>
+     */
+    public function getOperands(): array
+    {
+        return [];
+    }
+
+    /**
      * @param array<int, string> $args
      * @return int
      */

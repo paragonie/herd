@@ -2,7 +2,10 @@
 declare(strict_types=1);
 namespace ParagonIE\Herd\CommandLine;
 
-use GetOpt\Option;
+use GetOpt\{
+    Operand,
+    Option
+};
 
 /**
  * Interface CommandInterface
@@ -14,6 +17,11 @@ interface CommandInterface
      * @return array<int, Option>
      */
     public function getOptions(): array;
+
+    /**
+     * @return array<int, Operand>
+     */
+    public function getOperands(): array;
 
     /**
      * @param array<int, string> $args

@@ -65,11 +65,19 @@ if (!($class instanceof CommandInterface)) {
 
 // Use GetOpt to process the arguments properly:
 $getOpt = new GetOpt($class->getOptions());
-$getOpt->process($args);
+$getOpt->addOperands($class->getOperands());
+try {
+    $getOpt->process($args);
+} catch (\GetOpt\ArgumentException $ex) {
+    echo 'Error (', \get_class($ex), '): ',
+        $ex->getMessage(), PHP_EOL;
+    exit(1);
+}
 $opts = $getOpt->getOptions();
+$operands = $getOpt->getOperands();
 
 // Execute the CLI command.
 $exitCode = $class
     ->setOpts($opts)
-    ->run(...$args);
+    ->run(...$operands);
 exit($exitCode);
