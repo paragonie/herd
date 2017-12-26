@@ -2,9 +2,11 @@
 declare(strict_types=1);
 namespace ParagonIE\Herd\CommandLine\Command;
 
-use GetOpt\GetOpt;
-use GetOpt\Operand;
-use GetOpt\Option;
+use GetOpt\{
+    GetOpt,
+    Operand,
+    Option
+};
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\ConstantTime\Binary;
 use ParagonIE\Herd\CommandLine\{
@@ -68,6 +70,7 @@ class AddRemote implements CommandInterface
         if (!\is_string($file)) {
             throw new FilesystemException('Could not read configuration file');
         }
+        /** @var array<string, array<int, array<string, string>>> $decoded */
         $decoded = \json_decode($file, true);
         if (!\is_array($decoded)) {
             throw new EncodingError('Could not decode JSON body in configuration file');
@@ -88,6 +91,7 @@ class AddRemote implements CommandInterface
             throw new EncodingError('Could not re-encode JSON body');
         }
 
+        /** @var bool|int $saved */
         $saved = \file_put_contents($this->configPath, $encoded);
         if (!\is_int($saved)) {
             throw new FilesystemException('Could not write to configuration file');
@@ -98,8 +102,9 @@ class AddRemote implements CommandInterface
     /**
      * @param string $path
      * @throws FilesystemException
+     * @return self
      */
-    public function setConfigPath(string $path)
+    public function setConfigPath(string $path): self
     {
         if (!\file_exists($path)) {
             throw new FilesystemException('Configuration file does not exist');
@@ -111,13 +116,14 @@ class AddRemote implements CommandInterface
             throw new FilesystemException('Configuration file cannot be written to by the current user');
         }
         $this->configPath = \realpath($path);
+        return $this;
     }
 
     /**
      * Use the options provided by GetOpt to populate class properties
      * for this Command object.
      *
-     * @param array $args
+     * @param array<string, string> $args
      * @return self
      * @throws FilesystemException
      */

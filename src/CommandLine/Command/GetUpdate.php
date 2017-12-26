@@ -2,7 +2,10 @@
 declare(strict_types=1);
 namespace ParagonIE\Herd\CommandLine\Command;
 
-use GetOpt\Option;
+use GetOpt\{
+    Operand,
+    Option
+};
 use ParagonIE\Herd\CommandLine\{
     CommandInterface,
     DatabaseTrait
