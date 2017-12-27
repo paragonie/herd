@@ -98,7 +98,7 @@ class History
                     $up['summary']
                 );
                 try {
-                    $this->parseContentsAndInsert($up['contents'], (int)$historyID);
+                    $this->parseContentsAndInsert($up['contents'], (int)$historyID, $up['summary']);
                     $db->update(
                         'herd_history',
                         ['accepted' => true],
@@ -176,13 +176,18 @@ class History
     /**
      * @param string $contents
      * @param int $historyID
+     * @param string $hash
+     *
      * @return void
      * @throws EmptyValueException
      * @throws InvalidOperationException
      * @throws \Exception
      */
-    protected function parseContentsAndInsert(string $contents, int $historyID)
-    {
+    protected function parseContentsAndInsert(
+        string $contents,
+        int $historyID,
+        string $hash
+    ) {
         /** @var array<string, string> $decoded */
         $decoded = \json_decode($contents, true);
         if (!\is_array($decoded)) {
@@ -200,13 +205,13 @@ class History
         }
         switch ($decoded['op']) {
             case 'add-key':
-                $this->addPublicKey($decoded, $historyID);
+                $this->addPublicKey($decoded, $historyID, $hash);
                 break;
             case 'revoke-key':
-                $this->revokePublicKey($decoded, $historyID);
+                $this->revokePublicKey($decoded, $historyID, $hash);
                 break;
             case 'update':
-                $this->registerUpdate($decoded, $historyID);
+                $this->registerUpdate($decoded, $historyID, $hash);
                 break;
             default:
                 // Unknown or unsupported operation.
@@ -220,11 +225,12 @@ class History
      *
      * @param array<string, string> $data
      * @param int $historyID
+     * @param string $hash
      * @return void
      * @throws EmptyValueException
      * @throws \Exception
      */
-    protected function addPublicKey(array $data, int $historyID)
+    protected function addPublicKey(array $data, int $historyID, string $hash)
     {
         try {
             $this->validateMessage($data, 'add-key');
@@ -278,6 +284,7 @@ class History
                 'herd_vendor_keys',
                 [
                     'history_create' => $historyID,
+                    'summaryhash_create' => $hash,
                     'trusted' => true,
                     'vendor' => $vendorID,
                     'name' => $opBody['name']
@@ -299,11 +306,12 @@ class History
      *
      * @param array<string, string> $data
      * @param int $historyID
+     * @param string $hash
      * @return void
      * @throws EmptyValueException
      * @throws InvalidOperationException
      */
-    protected function revokePublicKey(array $data, int $historyID)
+    protected function revokePublicKey(array $data, int $historyID, string $hash)
     {
         try {
             $this->validateMessage($data, 'revoke-key');
@@ -350,6 +358,7 @@ class History
                 'herd_vendor_keys',
                 [
                     'history_revoke' => $historyID,
+                    'summaryhash_revoke' => $hash,
                     'trusted' => false,
                     'modified' => (new \DateTime())->format(\DateTime::ATOM)
                 ],
@@ -366,11 +375,12 @@ class History
      *
      * @param array<string, string> $data
      * @param int $historyID
+     * @param string $hash
      * @return void
      * @throws EmptyValueException
      * @throws \Exception
      */
-    protected function registerUpdate(array $data, int $historyID)
+    protected function registerUpdate(array $data, int $historyID, string $hash)
     {
         try {
             $this->validateMessage($data, 'update');
@@ -402,6 +412,7 @@ class History
             'herd_product_updates',
             [
                 'history' => $historyID,
+                'summaryhash' => $hash,
                 'version' => $opBody['version'],
                 'body' => $data['op-body'],
                 'product' => $productID,
