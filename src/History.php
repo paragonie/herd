@@ -116,6 +116,9 @@ class History
                 $last = $up;
             }
         }
+        if ($this->herd->getConfig()->getMinimalHistory()) {
+            $this->pruneHistory();
+        }
         if ($inserts === 0) {
             // This should not be rolled back unless told to:
             if ($useTransaction) {
@@ -575,5 +578,24 @@ class History
         // If we have met quorum, return TRUE.
         // If we have yet to meet quorum, return FALSE.
         return $quorum < 1;
+    }
+
+    /**
+     * Delete everything non-essential from the local database.
+     *
+     * @return void
+     */
+    protected function pruneHistory()
+    {
+        $db = $this->herd->getDatabase();
+        $historyID = $db->cell("SELECT MAX(id) FROM herd_history");
+        if (empty($historyID)) {
+            return;
+        }
+        if ($db->getDriver() === 'sqlite') {
+            $db->query("DELETE FROM herd_history WHERE accepted = 0 AND id < ?", $historyID);
+        } else {
+            $db->query("DELETE FROM herd_history WHERE NOT accepted AND id < ?", $historyID);
+        }
     }
 }
