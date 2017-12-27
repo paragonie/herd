@@ -588,6 +588,7 @@ class History
     protected function pruneHistory()
     {
         $db = $this->herd->getDatabase();
+        /** @var string $historyID */
         $historyID = $db->cell("SELECT MAX(id) FROM herd_history");
         if (empty($historyID)) {
             return;
