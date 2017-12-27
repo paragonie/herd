@@ -407,8 +407,10 @@ class History
                 'product' => $productID,
                 'publickey' => $publicKeyID,
                 'signature' => $data['op-sig'],
-                'created' => (new \DateTime())->format(\DateTime::ATOM),
-                'modified' => (new \DateTime())->format(\DateTime::ATOM)
+                'created' => (new \DateTime())
+                    ->format(\DateTime::ATOM),
+                'modified' => (new \DateTime())
+                    ->format(\DateTime::ATOM)
             ]
         );
     }
@@ -439,7 +441,11 @@ class History
         $publicKey = (string) Base64UrlSafe::decode($data['op-public-key']);
         /** @var string $signature */
         $signature = (string) Base64UrlSafe::decode($data['op-sig']);
-        if (!\sodium_crypto_sign_verify_detached($signature, $data['op-body'], $publicKey)) {
+        if (!\sodium_crypto_sign_verify_detached(
+            $signature,
+            $data['op-body'],
+            $publicKey
+        )) {
             throw new ChronicleException('Invalid signature');
         }
     }
@@ -453,8 +459,11 @@ class History
      * @param string $currHash
      * @return bool
      */
-    protected function quorumAgrees(Remote $used, string $summary, string $currHash): bool
-    {
+    protected function quorumAgrees(
+        Remote $used,
+        string $summary,
+        string $currHash
+    ): bool {
         $config = $this->herd->getConfig();
         $quorum = $config->getQuorum();
         if (empty($quorum)) {

@@ -68,8 +68,10 @@ class Product implements Cacheable
             [
                 'vendor' => $vendor,
                 'name' => $name,
-                'created' => (new \DateTime())->format(\DateTime::ATOM),
-                'modified' => (new \DateTime())->format(\DateTime::ATOM)
+                'created' => (new \DateTime())
+                    ->format(\DateTime::ATOM),
+                'modified' => (new \DateTime())
+                    ->format(\DateTime::ATOM)
             ],
             'id'
         );

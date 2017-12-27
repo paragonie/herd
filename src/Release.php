@@ -59,12 +59,12 @@ class Release implements Cacheable
     {
         /** @var array<int, SigningPublicKey> $publicKeys */
         $publicKeys = $this->getPublicKeys();
-        foreach ($publicKeys as $pkey) {
-            /** @var SigningPublicKey $pkey */
+        foreach ($publicKeys as $pKey) {
+            /** @var SigningPublicKey $pKey */
             if (\sodium_crypto_sign_verify_detached(
                 $this->signature,
                 $this->data,
-                $pkey->getString(true)
+                $pKey->getString(true)
             )) {
                 return true;
             }
@@ -85,7 +85,10 @@ class Release implements Cacheable
      */
     public function getPublicKeys(): array
     {
-        return $this->product->getVendor()->getPublicKeys();
+        return $this
+            ->product
+            ->getVendor()
+            ->getPublicKeys();
     }
 
     /**
@@ -93,6 +96,8 @@ class Release implements Cacheable
      */
     public function getVendor(): Vendor
     {
-        return $this->product->getVendor();
+        return $this
+            ->product
+            ->getVendor();
     }
 }

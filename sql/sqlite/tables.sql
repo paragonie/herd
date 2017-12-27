@@ -1,5 +1,5 @@
 CREATE TABLE herd_history (
-  id INT PRIMARY KEY ASC,
+  id INTEGER PRIMARY KEY,
   hash TEXT,
   summaryhash TEXT,
   prevhash TEXT,
@@ -10,36 +10,36 @@ CREATE TABLE herd_history (
   created TEXT
 );
 CREATE TABLE herd_vendors (
-  id INT PRIMARY KEY ASC,
+  id INTEGER PRIMARY KEY,
   name TEXT,
   created TEXT,
   modified TEXT
 );
 CREATE TABLE herd_vendor_keys (
-  id INT PRIMARY KEY ASC,
+  id INTEGER PRIMARY KEY,
   trusted INT,
-  vendor INT REFERENCES herd_vendors(id),
+  vendor INTEGER REFERENCES herd_vendors(id),
   publickey TEXT,
-  history_create INT REFERENCES herd_history(id),
-  history_revoke INT NULL REFERENCES herd_history(id),
+  history_create INTEGER REFERENCES herd_history(id),
+  history_revoke INTEGER NULL REFERENCES herd_history(id),
   name TEXT,
   created TEXT,
   modified TEXT
 );
 CREATE TABLE herd_products (
-  id INT PRIMARY KEY ASC,
-  vendor INT REFERENCES herd_vendors(id),
+  id INTEGER PRIMARY KEY,
+  vendor INTEGER REFERENCES herd_vendors(id),
   name TEXT,
   created TEXT,
   modified TEXT
 );
 CREATE TABLE herd_product_updates (
-  id INT PRIMARY KEY ASC,
-  product INT REFERENCES herd_products(id),
-  history INT REFERENCES herd_history(id),
+  id INTEGER PRIMARY KEY,
+  product INTEGER REFERENCES herd_products(id),
+  history INTEGER REFERENCES herd_history(id),
   version TEXT,
   body TEXT,
-  publickey INT REFERENCES herd_vendor_keys(id),
+  publickey INTEGER REFERENCES herd_vendor_keys(id),
   signature TEXT,
   created TEXT,
   modified TEXT
