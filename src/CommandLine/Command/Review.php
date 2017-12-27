@@ -102,7 +102,8 @@ class Review implements CommandInterface
                         $history->parseContentsAndInsert(
                             $row['contents'],
                             (int)$row['id'],
-                            $row['summaryhash']
+                            $row['summaryhash'],
+                            true /* We are overriding the normal behavior. */
                         );
                     } catch (\Throwable $ex) {
                         echo $ex->getMessage(), PHP_EOL;

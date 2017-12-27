@@ -182,6 +182,7 @@ class History
      * @param string $contents
      * @param int $historyID
      * @param string $hash
+     * @param bool $override
      *
      * @return void
      * @throws EmptyValueException
@@ -191,7 +192,8 @@ class History
     public function parseContentsAndInsert(
         string $contents,
         int $historyID,
-        string $hash
+        string $hash,
+        bool $override = false
     ) {
         /** @var array<string, string> $decoded */
         $decoded = \json_decode($contents, true);
@@ -212,10 +214,10 @@ class History
         }
         switch ($decoded['op']) {
             case 'add-key':
-                $this->addPublicKey($decoded, $historyID, $hash);
+                $this->addPublicKey($decoded, $historyID, $hash, $override);
                 break;
             case 'revoke-key':
-                $this->revokePublicKey($decoded, $historyID, $hash);
+                $this->revokePublicKey($decoded, $historyID, $hash, $override);
                 break;
             case 'update':
                 $this->registerUpdate($decoded, $historyID, $hash);
@@ -249,12 +251,17 @@ class History
      * @param array<string, string> $data
      * @param int $historyID
      * @param string $hash
+     * @param bool $override
      * @return void
      * @throws EmptyValueException
      * @throws \Exception
      */
-    protected function addPublicKey(array $data, int $historyID, string $hash)
-    {
+    protected function addPublicKey(
+        array $data,
+        int $historyID,
+        string $hash,
+        bool $override = false
+    ) {
         try {
             $this->validateMessage($data, 'add-key');
         } catch (ChronicleException $ex) {
@@ -301,7 +308,7 @@ class History
             }
         }
 
-        if (!empty($proceed)) {
+        if (!empty($proceed) || $override) {
             // Insert the vendor key:
             $db->insert(
                 'herd_vendor_keys',
@@ -331,12 +338,17 @@ class History
      * @param array<string, string> $data
      * @param int $historyID
      * @param string $hash
+     * @param bool $override
      * @return void
      * @throws EmptyValueException
      * @throws InvalidOperationException
      */
-    protected function revokePublicKey(array $data, int $historyID, string $hash)
-    {
+    protected function revokePublicKey(
+        array $data,
+        int $historyID,
+        string $hash,
+        bool $override = false
+    ) {
         try {
             $this->validateMessage($data, 'revoke-key');
         } catch (ChronicleException $ex) {
@@ -376,7 +388,7 @@ class History
                 $proceed = $config->allowNonInteractiveKeyManagement();
             }
         }
-        if (!empty($proceed)) {
+        if (!empty($proceed) || $override) {
             // Revoke the vendor key:
             $db->update(
                 'herd_vendor_keys',
