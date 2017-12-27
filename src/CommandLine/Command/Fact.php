@@ -56,8 +56,7 @@ class Fact implements CommandInterface
         $db = $this->getDatabase($this->configPath);
         /** @var array<string, string> $data */
         $data = $db->row(
-            "SELECT * FROM herd_history WHERE summaryhash = ? OR id = ?",
-            $arg1,
+            "SELECT * FROM herd_history WHERE summaryhash = ?",
             $arg1
         );
         if (empty($data)) {

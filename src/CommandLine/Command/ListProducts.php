@@ -68,10 +68,6 @@ class ListProducts implements CommandInterface
                     herd_vendors v
                 LEFT JOIN
                     herd_products p ON p.vendor = v.id
-                LEFT JOIN
-                    herd_product_updates u ON u.product = p.id
-                LEFT JOIN
-                    herd_history h ON u.history = h.id
                 WHERE
                     v.name = ?
             ",
