@@ -7,12 +7,21 @@ use GetOpt\{
     Operand,
     Option
 };
+use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\Herd\CommandLine\{
     ConfigurableTrait,
     CommandInterface,
     DatabaseTrait
 };
-use ParagonIE\Herd\Exception\EncodingError;
+use ParagonIE\Herd\Config;
+use ParagonIE\Herd\Data\Local;
+use ParagonIE\Herd\Exception\{
+    EmptyValueException,
+    EncodingError,
+    FilesystemException
+};
+use ParagonIE\Herd\Herd;
+use ParagonIE\Sapient\Sapient;
 
 /**
  * Class Fact
@@ -23,13 +32,17 @@ class Fact implements CommandInterface
     use ConfigurableTrait;
     use DatabaseTrait;
 
+    /** @var bool $remoteSearch */
+    protected $remoteSearch = false;
+
     /**
      * @return array<int, Option>
      */
     public function getOptions(): array
     {
         return [
-            new Option('c', 'config', GetOpt::REQUIRED_ARGUMENT)
+            new Option('c', 'config', GetOpt::REQUIRED_ARGUMENT),
+            new Option('r', 'remote', GetOpt::NO_ARGUMENT)
         ];
     }
 
@@ -60,8 +73,16 @@ class Fact implements CommandInterface
             $arg1
         );
         if (empty($data)) {
-            echo '[]', PHP_EOL;
-            exit(2);
+            if (!$this->remoteSearch) {
+                echo '[]', PHP_EOL;
+                exit(2);
+            }
+            $data = $this->lookup($db, $arg1);
+            if (empty($data)) {
+                echo '[]', PHP_EOL;
+                exit(2);
+            }
+            $data['notice'] = 'This came from a remote source, and is not stored locally!';
         }
 
         // We don't need this to display:
@@ -77,6 +98,40 @@ class Fact implements CommandInterface
         }
         echo $encoded, PHP_EOL;
         return 0;
+    }
+
+    /**
+     * @param EasyDB $db
+     * @param string $summaryHash
+     * @return array
+     *
+     * @throws EmptyValueException
+     * @throws EncodingError
+     * @throws FilesystemException
+     */
+    protected function lookup(EasyDB $db, string $summaryHash): array
+    {
+        $herd = new Herd(
+            new Local($db),
+            Config::fromFile($this->configPath)
+        );
+        $remote = $herd->selectRemote(true);
+        $sapient = new Sapient();
+        try {
+            /** @var array<string, string|array> $decoded */
+            $decoded = $sapient->decodeSignedJsonResponse(
+                $remote->lookup($summaryHash),
+                $remote->getPublicKey()
+            );
+            if ($decoded['status'] === 'OK') {
+                if (!\is_array($decoded['results'])) {
+                    return [];
+                }
+                return (array) \array_shift($decoded['results']);
+            }
+        } catch (\Throwable $ex) {
+        }
+        return [];
     }
 
     /**
@@ -99,6 +154,11 @@ class Fact implements CommandInterface
                 '/data/config.json'
             );
         }
+        if (isset($args['remote'])) {
+            $this->remoteSearch = !empty($args['remote']);
+        } elseif (isset($args['r'])) {
+            $this->remoteSearch = !empty($args['r']);
+        }
         return $this;
     }
 
@@ -110,13 +170,20 @@ class Fact implements CommandInterface
     public function usageInfo(): array
     {
         return [
-            'name' => 'Add remote source',
+            'name' => 'Learn about a historical event.',
             'usage' => 'shepherd fact <summary-hash>',
             'options' => [
                 'Configuration file' => [
                     'Examples' => [
                         '-c /path/to/file',
                         '--config=/path/to/file'
+                    ]
+                ],
+                'Remote lookup?' => [
+                    'Info' => 'If there is no local data, look it up from a remote source.',
+                    'Examples' => [
+                        '-r',
+                        '--remote'
                     ]
                 ]
             ]
