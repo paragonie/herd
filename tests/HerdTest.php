@@ -3,8 +3,10 @@ declare(strict_types=1);
 namespace ParagonIE\Herd\Tests;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
-use ParagonIE\EasyDB\EasyDB;
-use ParagonIE\EasyDB\Factory;
+use ParagonIE\EasyDB\{
+    EasyDB,
+    Factory
+};
 use ParagonIE\Herd\{
     Config,
     Data\Local,

@@ -3,10 +3,14 @@ declare(strict_types=1);
 namespace ParagonIE\Herd\Tests;
 
 use GuzzleHttp\Exception\ConnectException;
-use ParagonIE\Certainty\RemoteFetch;
-use ParagonIE\Certainty\Exception\BundleException;
-use ParagonIE\EasyDB\EasyDB;
-use ParagonIE\EasyDB\Factory;
+use ParagonIE\Certainty\{
+    RemoteFetch,
+    Exception\BundleException
+};
+use ParagonIE\EasyDB\{
+    EasyDB,
+    Factory
+};
 use ParagonIE\Herd\{
     Config,
     Data\Local,
