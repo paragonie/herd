@@ -4,6 +4,7 @@ namespace ParagonIE\Herd;
 
 use ParagonIE\Certainty\Exception\BundleException;
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\Herd\Data\Remote;
 use ParagonIE\Herd\Exception\{
     ChronicleException,
@@ -32,6 +33,14 @@ class History
     public function __construct(Herd $herd)
     {
         $this->herd = $herd;
+    }
+
+    /**
+     * @return EasyDB
+     */
+    public function getDatabase(): EasyDB
+    {
+        return $this->herd->getDatabase();
     }
 
     /**
@@ -98,13 +107,9 @@ class History
                     $up['summary']
                 );
                 try {
-                    $this->parseContentsAndInsert($up['contents'], (int)$historyID, $up['summary']);
-                    $db->update(
-                        'herd_history',
-                        ['accepted' => true],
-                        ['id' => $historyID]
-                    );
+                    $this->parseContentsAndInsert($up['contents'], (int) $historyID, $up['summary']);
                 } catch (\Throwable $ex) {
+                    $this->markAccepted((int) $historyID);
                 }
                 ++$inserts;
                 /** @var array<string, string> $last */
@@ -183,7 +188,7 @@ class History
      * @throws InvalidOperationException
      * @throws \Exception
      */
-    protected function parseContentsAndInsert(
+    public function parseContentsAndInsert(
         string $contents,
         int $historyID,
         string $hash
@@ -192,6 +197,7 @@ class History
         $decoded = \json_decode($contents, true);
         if (!\is_array($decoded)) {
             // Not a JSON message.
+            $this->markAccepted($historyID);
             return;
         }
         if (!isset(
@@ -201,6 +207,7 @@ class History
             $decoded['op-public-key']
         )) {
             // Not a JSON message for our usage
+            $this->markAccepted($historyID);
             return;
         }
         switch ($decoded['op']) {
@@ -215,8 +222,24 @@ class History
                 break;
             default:
                 // Unknown or unsupported operation.
+                $this->markAccepted($historyID);
                 return;
         }
+    }
+
+    /**
+     * Irrelevant junk just gets marked as "accepted" so we don't prompt later
+     *
+     * @param int $historyID
+     * @return void
+     */
+    protected function markAccepted(int $historyID)
+    {
+        $this->herd->getDatabase()->update(
+            'herd_history',
+            ['accepted' => true],
+            ['id' => $historyID]
+        );
     }
 
     /**
@@ -298,6 +321,7 @@ class History
                     'modified' => (new \DateTime())->format(\DateTime::ATOM)
                 ]
             );
+            $this->markAccepted($historyID);
         }
     }
 
@@ -366,6 +390,7 @@ class History
                     'id' => $targetKeyID
                 ]
             );
+            $this->markAccepted($historyID);
         }
     }
 
@@ -424,6 +449,7 @@ class History
                     ->format(\DateTime::ATOM)
             ]
         );
+        $this->markAccepted($historyID);
     }
 
     /**

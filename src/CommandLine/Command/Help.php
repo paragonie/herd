@@ -6,7 +6,10 @@ use GetOpt\{
     Operand,
     Option
 };
-use ParagonIE\Herd\CommandLine\CommandInterface;
+use ParagonIE\Herd\CommandLine\{
+    CommandInterface,
+    PromptTrait
+};
 
 /**
  * Class Help
@@ -14,6 +17,8 @@ use ParagonIE\Herd\CommandLine\CommandInterface;
  */
 class Help implements CommandInterface
 {
+    use PromptTrait;
+
     /** @var string */
     protected $subCommand = '';
 
@@ -58,34 +63,6 @@ class Help implements CommandInterface
             $map[$command] = $usageInfo;
         }
         return $map;
-    }
-
-    /**
-     * Return the size of hte current terminal window
-     *
-     * @return array<int, int>
-     * @psalm-suppress
-     */
-    public function getScreenSize()
-    {
-        $output = [];
-        \preg_match_all(
-            "/rows.([0-9]+);.columns.([0-9]+);/",
-            \strtolower(\exec('stty -a | grep columns')),
-            $output
-        );
-        /** @var array<int, array<int, int>> $output */
-        if (\sizeof($output) === 3) {
-            /** @var array<int, int> $width */
-            $width = $output[2];
-            /** @var array<int, int> $height */
-            $height = $output[1];
-            return [
-                $width[0],
-                $height[0]
-            ];
-        }
-        return [80, 25];
     }
 
     /**
