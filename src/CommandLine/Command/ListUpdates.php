@@ -57,9 +57,6 @@ class ListUpdates implements CommandInterface
                 SELECT
                     v.name AS vendor,
                     p.name AS product,
-                    h.contents AS history,
-                    h.hash,
-                    h.summaryhash,
                     u.*
                 FROM
                     herd_vendors v
@@ -67,8 +64,6 @@ class ListUpdates implements CommandInterface
                     herd_products p ON p.vendor = v.id
                 LEFT JOIN
                     herd_product_updates u ON u.product = p.id
-                LEFT JOIN
-                    herd_history h ON u.history = h.id
                 WHERE
                     v.name = ?
                     AND p.name = ?

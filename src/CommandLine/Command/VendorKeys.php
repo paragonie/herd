@@ -64,16 +64,12 @@ class VendorKeys implements CommandInterface
                     k.publickey,
                     k.name,
                     k.created,
-                    k.modified,
-                    h.contents AS history,
-                    h.hash,
-                    h.summaryhash
+                    k.modified
+                    k.summaryhash_create
                 FROM
                     herd_vendors v
                 LEFT JOIN
                     herd_vendor_keys k ON k.vendor = v.id
-                LEFT JOIN
-                    herd_history h ON k.history_create = h.id
                 WHERE
                     v.name = ?
                     AND k.trusted

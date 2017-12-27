@@ -12,6 +12,7 @@ use ParagonIE\Herd\CommandLine\Command\{
     ListProducts,
     ListUpdates,
     ListVendors,
+    Review,
     Transcribe,
     VendorKeys
 };
@@ -33,6 +34,7 @@ $commandAliases = [
     'list-products' => ListProducts::class,
     'list-updates' => ListUpdates::class,
     'list-vendors' => ListVendors::class,
+    'review' => Review::class,
     'transcribe' => Transcribe::class,
     'vendor-keys' => VendorKeys::class
 ];

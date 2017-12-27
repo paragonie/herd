@@ -4,6 +4,7 @@ namespace ParagonIE\Herd;
 
 use ParagonIE\Certainty\Exception\BundleException;
 use ParagonIE\ConstantTime\Base64UrlSafe;
+use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\Herd\Data\Remote;
 use ParagonIE\Herd\Exception\{
     ChronicleException,
@@ -32,6 +33,14 @@ class History
     public function __construct(Herd $herd)
     {
         $this->herd = $herd;
+    }
+
+    /**
+     * @return EasyDB
+     */
+    public function getDatabase(): EasyDB
+    {
+        return $this->herd->getDatabase();
     }
 
     /**
@@ -98,18 +107,17 @@ class History
                     $up['summary']
                 );
                 try {
-                    $this->parseContentsAndInsert($up['contents'], (int)$historyID);
-                    $db->update(
-                        'herd_history',
-                        ['accepted' => true],
-                        ['id' => $historyID]
-                    );
+                    $this->parseContentsAndInsert($up['contents'], (int) $historyID, $up['summary']);
                 } catch (\Throwable $ex) {
+                    $this->markAccepted((int) $historyID);
                 }
                 ++$inserts;
                 /** @var array<string, string> $last */
                 $last = $up;
             }
+        }
+        if ($this->herd->getConfig()->getMinimalHistory()) {
+            $this->pruneHistory();
         }
         if ($inserts === 0) {
             // This should not be rolled back unless told to:
@@ -176,17 +184,25 @@ class History
     /**
      * @param string $contents
      * @param int $historyID
+     * @param string $hash
+     * @param bool $override
+     *
      * @return void
      * @throws EmptyValueException
      * @throws InvalidOperationException
      * @throws \Exception
      */
-    protected function parseContentsAndInsert(string $contents, int $historyID)
-    {
+    public function parseContentsAndInsert(
+        string $contents,
+        int $historyID,
+        string $hash,
+        bool $override = false
+    ) {
         /** @var array<string, string> $decoded */
         $decoded = \json_decode($contents, true);
         if (!\is_array($decoded)) {
             // Not a JSON message.
+            $this->markAccepted($historyID);
             return;
         }
         if (!isset(
@@ -196,22 +212,39 @@ class History
             $decoded['op-public-key']
         )) {
             // Not a JSON message for our usage
+            $this->markAccepted($historyID);
             return;
         }
         switch ($decoded['op']) {
             case 'add-key':
-                $this->addPublicKey($decoded, $historyID);
+                $this->addPublicKey($decoded, $historyID, $hash, $override);
                 break;
             case 'revoke-key':
-                $this->revokePublicKey($decoded, $historyID);
+                $this->revokePublicKey($decoded, $historyID, $hash, $override);
                 break;
             case 'update':
-                $this->registerUpdate($decoded, $historyID);
+                $this->registerUpdate($decoded, $historyID, $hash);
                 break;
             default:
                 // Unknown or unsupported operation.
+                $this->markAccepted($historyID);
                 return;
         }
+    }
+
+    /**
+     * Irrelevant junk just gets marked as "accepted" so we don't prompt later
+     *
+     * @param int $historyID
+     * @return void
+     */
+    protected function markAccepted(int $historyID)
+    {
+        $this->herd->getDatabase()->update(
+            'herd_history',
+            ['accepted' => true],
+            ['id' => $historyID]
+        );
     }
 
     /**
@@ -220,12 +253,18 @@ class History
      *
      * @param array<string, string> $data
      * @param int $historyID
+     * @param string $hash
+     * @param bool $override
      * @return void
      * @throws EmptyValueException
      * @throws \Exception
      */
-    protected function addPublicKey(array $data, int $historyID)
-    {
+    protected function addPublicKey(
+        array $data,
+        int $historyID,
+        string $hash,
+        bool $override = false
+    ) {
         try {
             $this->validateMessage($data, 'add-key');
         } catch (ChronicleException $ex) {
@@ -272,12 +311,13 @@ class History
             }
         }
 
-        if (!empty($proceed)) {
+        if (!empty($proceed) || $override) {
             // Insert the vendor key:
             $db->insert(
                 'herd_vendor_keys',
                 [
                     'history_create' => $historyID,
+                    'summaryhash_create' => $hash,
                     'trusted' => true,
                     'vendor' => $vendorID,
                     'name' => $opBody['name']
@@ -291,6 +331,7 @@ class History
                     'modified' => (new \DateTime())->format(\DateTime::ATOM)
                 ]
             );
+            $this->markAccepted($historyID);
         }
     }
 
@@ -299,12 +340,18 @@ class History
      *
      * @param array<string, string> $data
      * @param int $historyID
+     * @param string $hash
+     * @param bool $override
      * @return void
      * @throws EmptyValueException
      * @throws InvalidOperationException
      */
-    protected function revokePublicKey(array $data, int $historyID)
-    {
+    protected function revokePublicKey(
+        array $data,
+        int $historyID,
+        string $hash,
+        bool $override = false
+    ) {
         try {
             $this->validateMessage($data, 'revoke-key');
         } catch (ChronicleException $ex) {
@@ -344,12 +391,13 @@ class History
                 $proceed = $config->allowNonInteractiveKeyManagement();
             }
         }
-        if (!empty($proceed)) {
+        if (!empty($proceed) || $override) {
             // Revoke the vendor key:
             $db->update(
                 'herd_vendor_keys',
                 [
                     'history_revoke' => $historyID,
+                    'summaryhash_revoke' => $hash,
                     'trusted' => false,
                     'modified' => (new \DateTime())->format(\DateTime::ATOM)
                 ],
@@ -357,6 +405,7 @@ class History
                     'id' => $targetKeyID
                 ]
             );
+            $this->markAccepted($historyID);
         }
     }
 
@@ -366,11 +415,12 @@ class History
      *
      * @param array<string, string> $data
      * @param int $historyID
+     * @param string $hash
      * @return void
      * @throws EmptyValueException
      * @throws \Exception
      */
-    protected function registerUpdate(array $data, int $historyID)
+    protected function registerUpdate(array $data, int $historyID, string $hash)
     {
         try {
             $this->validateMessage($data, 'update');
@@ -402,6 +452,7 @@ class History
             'herd_product_updates',
             [
                 'history' => $historyID,
+                'summaryhash' => $hash,
                 'version' => $opBody['version'],
                 'body' => $data['op-body'],
                 'product' => $productID,
@@ -413,6 +464,7 @@ class History
                     ->format(\DateTime::ATOM)
             ]
         );
+        $this->markAccepted($historyID);
     }
 
     /**
@@ -526,5 +578,25 @@ class History
         // If we have met quorum, return TRUE.
         // If we have yet to meet quorum, return FALSE.
         return $quorum < 1;
+    }
+
+    /**
+     * Delete everything non-essential from the local database.
+     *
+     * @return void
+     */
+    protected function pruneHistory()
+    {
+        $db = $this->herd->getDatabase();
+        /** @var string $historyID */
+        $historyID = $db->cell("SELECT MAX(id) FROM herd_history");
+        if (empty($historyID)) {
+            return;
+        }
+        if ($db->getDriver() === 'sqlite') {
+            $db->query("DELETE FROM herd_history WHERE accepted = 0 AND id < ?", $historyID);
+        } else {
+            $db->query("DELETE FROM herd_history WHERE NOT accepted AND id < ?", $historyID);
+        }
     }
 }

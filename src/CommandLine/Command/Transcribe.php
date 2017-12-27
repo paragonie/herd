@@ -64,6 +64,7 @@ class Transcribe implements CommandInterface
         );
         try {
             $history->transcribe();
+            echo 'OK', PHP_EOL;
         } catch (\Throwable $ex) {
             echo $ex->getMessage(), PHP_EOL;
             return 127;

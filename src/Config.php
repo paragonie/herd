@@ -25,6 +25,9 @@ class Config
     /** @var string $file */
     protected $file = '';
 
+    /** @var bool $minimalHistory */
+    protected $minimalHistory = false;
+
     /** @var int $quorum */
     protected $quorum = 0;
 
@@ -60,6 +63,14 @@ class Config
     public function getCoreVendorName(): string
     {
         return $this->coreVendorName;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getMinimalHistory(): bool
+    {
+        return $this->minimalHistory;
     }
 
     /**
@@ -123,6 +134,8 @@ class Config
                 $config->quorum = (int) $policies['quorum'];
             }
         }
+
+        $config->minimalHistory = !empty($policies['minimal-history']);
 
         return $config;
     }

@@ -20,8 +20,10 @@ CREATE TABLE herd_vendor_keys (
   trusted BOOLEAN DEFAULT FALSE,
   vendor BIGINT REFERENCES herd_vendors(id),
   publickey TEXT,
-  history_create BIGINT REFERENCES herd_history(id),
-  history_revoke BIGINT NULL REFERENCES herd_history(id),
+  history_create BIGINT,
+  history_revoke BIGINT NULL,
+  summaryhash_create TEXT,
+  summaryhash_revoke TEXT NULL,
   name TEXT,
   created TIMESTAMP,
   modified TIMESTAMP
@@ -36,7 +38,8 @@ CREATE TABLE herd_products (
 CREATE TABLE herd_product_updates (
   id BIGSERIAL PRIMARY KEY,
   product BIGINT REFERENCES herd_products(id),
-  history BIGINT REFERENCES herd_history(id),
+  history BIGINT,
+  summaryhash TEXT,
   version TEXT,
   body TEXT,
   publickey BIGINT REFERENCES herd_vendor_keys(id),
