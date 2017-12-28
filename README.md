@@ -16,4 +16,10 @@ maintains a local snapshot of the current state of affairs for:
 * Products
   * Releases
 
-This is an experimental project, and very much a Work-in-Porgress.
+The **[Documentation](https://github.com/paragonie/herd/tree/master/doc)** is available online. 
+
+## Requirements
+
+* PHP 7.0 or newer (7.2 is recommended)
+* Composer
+* PDO and a local database
