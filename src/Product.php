@@ -4,6 +4,7 @@ namespace ParagonIE\Herd;
 
 use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\Herd\Data\Cacheable;
+use ParagonIE\Herd\Exception\EmptyValueException;
 
 /**
  * Class Product
@@ -30,6 +31,25 @@ class Product implements Cacheable
     }
 
     /**
+     * @param EasyDB $db
+     * @param int $id
+     * @return self
+     * @throws EmptyValueException
+     */
+    public static function byId(EasyDB $db, int $id): self
+    {
+        /** @var array<string, string> $r */
+        $r = $db->row('SELECT * FROM herd_products WHERE id = ?', $id);
+        if (empty($r)) {
+            throw new EmptyValueException('Could not find this product');
+        }
+        return new static(
+            Vendor::byId($db, (int) $r['vendor']),
+            $r['name']
+        );
+    }
+
+    /**
      * @return string
      */
     public function getName(): string
@@ -46,6 +66,9 @@ class Product implements Cacheable
     }
 
     /**
+     * Create the product for this vendor if it does not already exist.
+     * Return the product ID either way.
+     *
      * @param EasyDB $db
      * @param int $vendor
      * @param string $name

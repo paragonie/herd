@@ -2,7 +2,9 @@
 declare(strict_types=1);
 namespace ParagonIE\Herd;
 
+use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\Herd\Data\Cacheable;
+use ParagonIE\Herd\Exception\EmptyValueException;
 use ParagonIE\Sapient\CryptographyKeys\SigningPublicKey;
 
 /**
@@ -17,39 +19,60 @@ class Release implements Cacheable
     /** @var string $data */
     protected $data;
 
-    /** @var HistoryRecord $history */
-    protected $history;
-
     /** @var Product $product */
     protected $product;
 
-    /** @var string */
+    /** @var string $signature */
     protected $signature;
 
-    /** @var string */
+    /** @var string $version */
     protected $version;
+
+    /** @var string $summaryHash */
+    protected $summaryHash;
 
     /**
      * Release constructor.
      *
      * @param Product $product
-     * @param HistoryRecord $record
      * @param string $version
      * @param string $data
      * @param string $signature
+     * @param string $summaryHash
      */
     public function __construct(
         Product $product,
-        HistoryRecord $record,
         string $version,
         string $data,
-        string $signature
+        string $signature,
+        string $summaryHash
     ) {
-        $this->history = $record;
         $this->product = $product;
         $this->version = $version;
         $this->data = $data;
         $this->signature = $signature;
+        $this->summaryHash = $summaryHash;
+    }
+
+    /**
+     * @param EasyDB $db
+     * @param int $id
+     * @return self
+     * @throws EmptyValueException
+     */
+    public static function byId(EasyDB $db, int $id): self
+    {
+        /** @var array<string, string> $r */
+        $r = $db->row('SELECT * FROM herd_product_updates WHERE id = ?', $id);
+        if (empty($r)) {
+            throw new EmptyValueException('Could not find this software release');
+        }
+        return new static(
+            Product::byId($db, (int) $r['product']),
+            $r['version'],
+            $r['data'],
+            $r['signature']
+        );
     }
 
     /**
@@ -89,6 +112,14 @@ class Release implements Cacheable
             ->product
             ->getVendor()
             ->getPublicKeys();
+    }
+
+    /**
+     * @return string
+     */
+    public function getSummaryHash(): string
+    {
+        return $this->summaryHash;
     }
 
     /**

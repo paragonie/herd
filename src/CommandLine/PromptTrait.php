@@ -54,7 +54,6 @@ trait PromptTrait
         return \readline($text . ' ');
     }
 
-
     /**
      * Interactively prompts for input without echoing to the terminal.
      * Requires a bash shell or Windows and won't work with
@@ -97,6 +96,4 @@ trait PromptTrait
             return $password;
         }
     }
-
-
 }

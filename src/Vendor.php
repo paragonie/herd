@@ -29,6 +29,22 @@ class Vendor implements Cacheable
     }
 
     /**
+     * @param EasyDB $db
+     * @param int $id
+     * @return self
+     * @throws EmptyValueException
+     */
+    public static function byId(EasyDB $db, int $id): self
+    {
+        /** @var array<string, string> $r */
+        $r = $db->row('SELECT * FROM herd_vendors WHERE id = ?', $id);
+        if (empty($r)) {
+            throw new EmptyValueException('Could not find this product');
+        }
+        return new static($r['name']);
+    }
+
+    /**
      * @param SigningPublicKey $publicKey
      * @return self
      */

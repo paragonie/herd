@@ -149,10 +149,10 @@ class Local
         }
         $release = new Release(
             $this->loadProduct((int) $r['product']),
-            $this->loadHistory((int) $r['history']),
             (string) $r['version'],
             (string) $r['body'],
-            (string) Base64UrlSafe::decode((string) $r['signature'])
+            (string) Base64UrlSafe::decode((string) $r['signature']),
+            (string) $r['summaryhash']
         );
         ObjectCache::set($release, 'release', $id);
         return $release;

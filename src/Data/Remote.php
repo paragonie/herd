@@ -71,6 +71,9 @@ class Remote
     }
 
     /**
+     * Lookup a hash in a Remote source. Return the PSR-7 response object
+     * containing the Chronicle's API response and headers.
+     *
      * @param string $summaryHash
      * @return ResponseInterface
      * @throws BundleException
