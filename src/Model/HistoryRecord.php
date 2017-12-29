@@ -1,6 +1,6 @@
 <?php
 declare(strict_types=1);
-namespace ParagonIE\Herd;
+namespace ParagonIE\Herd\Model;
 
 use ParagonIE\Herd\Data\Cacheable;
 use ParagonIE\Sapient\CryptographyKeys\SigningPublicKey;

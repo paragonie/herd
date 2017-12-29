@@ -6,6 +6,10 @@ use ParagonIE\Certainty\Exception\BundleException;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\Herd\Data\Remote;
+use ParagonIE\Herd\Model\{
+    Product,
+    Vendor
+};
 use ParagonIE\Herd\Exception\{
     ChronicleException,
     EmptyValueException,

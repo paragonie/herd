@@ -4,8 +4,8 @@ namespace ParagonIE\Herd\Data;
 
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\EasyDB\EasyDB;
-use ParagonIE\Herd\{
-    Config,
+use ParagonIE\Herd\Config;
+use ParagonIE\Herd\Model\{
     HistoryRecord,
     Product,
     Release,
