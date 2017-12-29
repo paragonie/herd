@@ -49,6 +49,7 @@ class GetUpdate implements CommandInterface
      * @param array<int, string> $args
      * @return int
      * @throws \Exception
+     * @throws \Error
      */
     public function run(...$args): int
     {

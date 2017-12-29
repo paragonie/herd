@@ -77,10 +77,11 @@ class Help implements CommandInterface
             $maxLength = \max($maxLength, \strlen($key));
         }
         /**
+         * @var array<int, int> $size
          * @var int $w
-         * @var int $h
          */
-        list($w, $h) = $this->getScreenSize();
+        $size = $this->getScreenSize();
+        $w = (int) \array_shift($size);
 
         // Header
         echo \str_pad('Command', $maxLength + 2, ' ', STR_PAD_RIGHT),
@@ -130,10 +131,11 @@ class Help implements CommandInterface
             $maxLength = \max($maxLength, \strlen($key));
         }
         /**
+         * @var array<int, int> $size
          * @var int $w
-         * @var int $h
          */
-        list($w, $h) = $this->getScreenSize();
+        $size = $this->getScreenSize();
+        $w = (int) \array_shift($size);
 
         // Header
         echo \str_pad('Command', $maxLength + 2, ' ', STR_PAD_RIGHT),

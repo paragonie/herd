@@ -49,6 +49,7 @@ class Review implements CommandInterface
      * @param array<int, string> $args
      * @return int
      * @throws \Exception
+     * @throws \Error
      */
     public function run(...$args): int
     {
@@ -82,9 +83,13 @@ class Review implements CommandInterface
      */
     protected function reviewHistory(History $history, array $data): int
     {
-        $db = $history->getDatabase();
-        /** @var array<string, string> $row */
-        list($w, $h) = $this->getScreenSize();
+        /**
+         * @var array<int, int> $size
+         * @var int $w
+         * @var array<string, string> $row
+         */
+        $size = $this->getScreenSize();
+        $w = (int) \array_shift($size);
         foreach ($data as $row) {
             echo \str_repeat('-', $w - 1), PHP_EOL;
             echo '-- Hash: ', $row['hash'], PHP_EOL;

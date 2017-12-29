@@ -52,9 +52,9 @@ class History
      *
      * @param bool $useTransaction
      * @return bool
+     * @throws BundleException
      * @throws ChronicleException
      * @throws EmptyValueException
-     * @throws BundleException
      */
     public function transcribe(bool $useTransaction = true): bool
     {
@@ -514,6 +514,7 @@ class History
      * @param string $summary
      * @param string $currHash
      * @return bool
+     * @throws \RangeException
      */
     protected function quorumAgrees(
         Remote $used,
@@ -549,11 +550,10 @@ class History
         // keep querying other remote Chronicles.
         while ($quorum > 0 && !empty($remotes)) {
             // Select one at random:
-            $r = \random_int(1, \count($remotes)) - 1;
-
-            /** @var Remote $remote */
-            $remote = $remotes[$r];
             try {
+                $r = \random_int(1, \count($remotes)) - 1;
+                /** @var Remote $remote */
+                $remote = $remotes[$r];
                 $decoded = $sapient->decodeSignedJsonResponse(
                     $remote->lookup($summary),
                     $remote->getPublicKey()
@@ -577,6 +577,8 @@ class History
                 // Probably a transfer exception. Move on.
             }
             unset($remotes[$r]);
+            // Reset keys:
+            $remotes = \array_values($remotes);
         }
 
         // If we have met quorum, return TRUE.
@@ -586,6 +588,11 @@ class History
 
     /**
      * Delete everything non-essential from the local database.
+     *
+     * This leaves only:
+     *
+     * - Non-accepted history entries
+     * - The most recent entry
      *
      * @return void
      */

@@ -7,7 +7,6 @@
  */
 
 namespace ParagonIE\Herd\CommandLine;
-use ParagonIE\Herd\Exception\FilesystemException;
 
 /**
  * Trait PromptTrait

@@ -149,7 +149,13 @@ class Herd
             $summaryHash = $this->getLatestSummaryHash();
         }
         if (!$target) {
-            $target = $this->selectRemote(true);
+            try {
+                $target = $this->selectRemote(true);
+            } catch (EmptyValueException $ex) {
+                throw $ex;
+            } catch (\Throwable $ex) {
+                return [];
+            }
         }
 
 
@@ -207,6 +213,7 @@ class Herd
      * @param bool $notPrimary
      * @return Remote
      * @throws EmptyValueException
+     * @throws \Exception from random_int()
      */
     public function selectRemote(bool $notPrimary = false): Remote
     {
