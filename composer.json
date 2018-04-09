@@ -23,7 +23,7 @@
     "php": "^7",
     "guzzlehttp/guzzle": "^6",
     "paragonie/blakechain": "^1",
-    "paragonie/certainty": "^1",
+    "paragonie/certainty": "^2",
     "paragonie/constant_time_encoding": "^2",
     "paragonie/easydb": "^2.5",
     "paragonie/sapient": "^1",
