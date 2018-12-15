@@ -20,6 +20,6 @@ The **[Documentation](https://github.com/paragonie/herd/tree/master/doc)** is av
 
 ## Requirements
 
-* PHP 7.0 or newer (7.2 is recommended)
+* PHP 7.2 or newer
 * Composer
 * PDO and a local database
