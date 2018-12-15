@@ -1,7 +1,7 @@
 # Herd - Configuration
 
 The default configuration file lives in `data/config.json` from the project's root directory.
-However, you can override this when passing arguments to the [cli](Command Line Interface).
+However, you can override this when passing arguments to the [Command Line Interface](cli).
 
 A sample configuration file looks like:
 

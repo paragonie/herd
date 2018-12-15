@@ -13,7 +13,7 @@ use ParagonIE\Herd\Exception\EmptyValueException;
  */
 abstract class ObjectCache
 {
-    /** @var array<string, Cacheable> */
+    /** @var array<string, array<string|int, Cacheable>> */
     public static $cache = [];
 
     /** @var string $cacheKey */
@@ -24,6 +24,8 @@ abstract class ObjectCache
      *
      * @param string $type
      * @return string
+     *
+     * @throws \SodiumException
      */
     public static function getCacheKey(string $type): string
     {
@@ -42,7 +44,9 @@ abstract class ObjectCache
      * @param string $type
      * @param int $id
      * @return Cacheable
+     *
      * @throws EmptyValueException
+     * @throws \SodiumException
      */
     public static function get(string $type, int $id = 0): Cacheable
     {
@@ -62,6 +66,8 @@ abstract class ObjectCache
      * @param string $type
      * @param int $id
      * @return bool
+     *
+     * @throws \SodiumException
      */
     public static function remove(string $type, int $id): bool
     {
@@ -81,6 +87,8 @@ abstract class ObjectCache
      * @param string $type
      * @param int $id
      * @return Cacheable
+     *
+     * @throws \SodiumException
      */
     public static function set(Cacheable $obj, string $type, int $id): Cacheable
     {

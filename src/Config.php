@@ -34,6 +34,9 @@ class Config
     /** @var array<int, array<string, mixed>> */
     protected $remotes = [];
 
+    /** @var string $tlsCertDir */
+    protected $tlsCertDir = '';
+
     /**
      * Can the core vendor replace keys for other vendors?
      *
@@ -90,6 +93,14 @@ class Config
     }
 
     /**
+     * @return string
+     */
+    public function getTlsCertDirectory(): string
+    {
+        return $this->tlsCertDir;
+    }
+
+    /**
      * Load configuration from a file.
      *
      * @param string $path
@@ -135,6 +146,12 @@ class Config
             if (\is_int($policies['quorum'])) {
                 $config->quorum = (int) $policies['quorum'];
             }
+        }
+
+        if (isset($policies['tls-cert-dir'])) {
+            $config->tlsCertDir = (string) $policies['tls-cert-dir'];
+        } else {
+            $config->tlsCertDir = \dirname(__DIR__) . '/data/certs';
         }
 
         $config->minimalHistory = !empty($policies['minimal-history']);

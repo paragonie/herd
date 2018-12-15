@@ -33,7 +33,7 @@ interface CommandInterface
      * Use the options provided by GetOpt to populate class properties
      * for this Command object.
      *
-     * @param array $args
+     * @param array<string, string> $args
      * @return self
      */
     public function setOpts(array $args = []);

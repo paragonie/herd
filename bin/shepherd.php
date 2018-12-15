@@ -75,6 +75,7 @@ try {
         $ex->getMessage(), PHP_EOL;
     exit(1);
 }
+/** @var array<string, string> $opts */
 $opts = $getOpt->getOptions();
 $operands = $getOpt->getOperands();
 

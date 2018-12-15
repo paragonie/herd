@@ -6,6 +6,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use ParagonIE\Certainty\{
     Exception\BundleException,
+    Exception\CertaintyException,
     RemoteFetch
 };
 use ParagonIE\Sapient\CryptographyKeys\SigningPublicKey;
@@ -20,6 +21,9 @@ use Psr\Http\Message\ResponseInterface;
  */
 class Remote
 {
+    /** @var string $certPath */
+    protected $certPath;
+
     /** @var bool $isPrimary */
     protected $isPrimary = false;
 
@@ -35,15 +39,18 @@ class Remote
      * @param string $url
      * @param SigningPublicKey $publicKey
      * @param bool $isPrimary
+     * @param string $certPath
      */
     public function __construct(
         string $url,
         SigningPublicKey $publicKey,
-        bool $isPrimary = false
+        bool $isPrimary = false,
+        string $certPath = ''
     ) {
         $this->url = $url;
         $this->publicKey = $publicKey;
         $this->isPrimary = $isPrimary;
+        $this->certPath = $certPath;
     }
 
     /**
@@ -77,6 +84,8 @@ class Remote
      * @param string $summaryHash
      * @return ResponseInterface
      * @throws BundleException
+     * @throws CertaintyException
+     * @throws \SodiumException
      * @throws \TypeError
      */
     public function lookup(string $summaryHash): ResponseInterface
@@ -89,7 +98,7 @@ class Remote
             $this->url . '/lookup/' . \urlencode($summaryHash),
             // We're going to use Certainty to always fetch the latest CACert bundle
             [
-                'verify' => (new RemoteFetch())
+                'verify' => (new RemoteFetch($this->certPath))
                     ->getLatestBundle()
                     ->getFilePath()
             ]

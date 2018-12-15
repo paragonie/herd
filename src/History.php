@@ -2,7 +2,7 @@
 declare(strict_types=1);
 namespace ParagonIE\Herd;
 
-use ParagonIE\Certainty\Exception\BundleException;
+use ParagonIE\Certainty\Exception\CertaintyException;
 use ParagonIE\ConstantTime\Base64UrlSafe;
 use ParagonIE\EasyDB\EasyDB;
 use ParagonIE\Herd\Data\Remote;
@@ -15,6 +15,7 @@ use ParagonIE\Herd\Exception\{
     EmptyValueException,
     InvalidOperationException
 };
+use ParagonIE\Sapient\Exception\InvalidMessageException;
 use ParagonIE\Sapient\Sapient;
 
 /**
@@ -52,9 +53,12 @@ class History
      *
      * @param bool $useTransaction
      * @return bool
-     * @throws BundleException
+     *
+     * @throws CertaintyException
      * @throws ChronicleException
      * @throws EmptyValueException
+     * @throws InvalidMessageException
+     * @throws \SodiumException
      */
     public function transcribe(bool $useTransaction = true): bool
     {
@@ -141,6 +145,8 @@ class History
      * @param array<string, string> $up
      * @param array<string, string> $prev
      * @return bool
+     *
+     * @throws \SodiumException
      */
     public function isValidNextEntry(array $up, array $prev = []): bool
     {
@@ -347,8 +353,10 @@ class History
      * @param string $hash
      * @param bool $override
      * @return void
+     *
      * @throws EmptyValueException
      * @throws InvalidOperationException
+     * @throws \SodiumException
      */
     protected function revokePublicKey(
         array $data,
@@ -477,7 +485,9 @@ class History
      * @param array<string, string> $data
      * @param string $operation
      * @return void
+     *
      * @throws ChronicleException
+     * @throws \SodiumException
      */
     protected function validateMessage(array $data, string $operation)
     {

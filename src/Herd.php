@@ -5,7 +5,7 @@ namespace ParagonIE\Herd;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use ParagonIE\Certainty\{
-    Exception\BundleException,
+    Exception\CertaintyException,
     RemoteFetch
 };
 use ParagonIE\ConstantTime\Base64UrlSafe;
@@ -23,6 +23,7 @@ use ParagonIE\Herd\Exception\{
 use ParagonIE\Sapient\{
     Adapter\Guzzle,
     CryptographyKeys\SigningPublicKey,
+    Exception\InvalidMessageException,
     Sapient
 };
 
@@ -74,7 +75,8 @@ class Herd
                     new SigningPublicKey(
                         Base64UrlSafe::decode($rem['public-key'])
                     ),
-                    !empty($rem['primary'])
+                    !empty($rem['primary']),
+                    $config->getTlsCertDirectory()
                 )
             );
         }
@@ -139,9 +141,12 @@ class Herd
      * @param string $summaryHash
      * @param Remote|null $target
      * @return array<int, array<string, string>>
-     * @throws BundleException
+     *
+     * @throws CertaintyException
      * @throws ChronicleException
      * @throws EmptyValueException
+     * @throws InvalidMessageException
+     * @throws \SodiumException
      */
     public function getUpdatesSince(string $summaryHash = '', Remote $target = null): array
     {
@@ -157,7 +162,6 @@ class Herd
                 return [];
             }
         }
-
 
         if (!empty($summaryHash)) {
             // Only get the new entries
@@ -175,13 +179,13 @@ class Herd
             $url,
             // We're going to use Certainty to always fetch the latest CACert bundle
             [
-                'verify' => (new RemoteFetch())
+                'verify' => (new RemoteFetch($this->config->getTlsCertDirectory()))
                     ->getLatestBundle()
                     ->getFilePath()
             ]
         );
 
-        /** @var array $decoded */
+        /** @var array<string, string|array<int, array<string, string>>> $decoded */
         $decoded = $this->sapient->decodeSignedJsonResponse(
             $response,
             $target->getPublicKey()
@@ -195,7 +199,9 @@ class Herd
             throw new ChronicleException('An unknown error has occurred with the Chronicle');
         }
         if (\is_array($decoded['results'])) {
-            return $decoded['results'];
+            /** @var array<int, array<string, string>> $results */
+            $results = $decoded['results'];
+            return $results;
         }
         return [];
     }

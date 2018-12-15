@@ -4,8 +4,8 @@ namespace ParagonIE\Herd\Tests;
 
 use GuzzleHttp\Exception\ConnectException;
 use ParagonIE\Certainty\{
-    RemoteFetch,
-    Exception\BundleException
+    Exception\CertaintyException,
+    RemoteFetch
 };
 use ParagonIE\EasyDB\{
     EasyDB,
@@ -31,11 +31,12 @@ class HistoryTest extends TestCase
     public function setUp()
     {
         $this->db = Factory::create('sqlite:' . __DIR__ . '/empty.sql');
+        $directory = dirname(__DIR__) . '/data/certs';
         try {
-            (new RemoteFetch())
+            (new RemoteFetch($directory))
                 ->getLatestBundle()
                 ->getFilePath();
-        } catch (BundleException $ex) {
+        } catch (CertaintyException $ex) {
             $this->fail('Test failed: could not download CACert bundle');
         } catch (ConnectException $ex) {
             $this->markTestSkipped('Cannot connect using TLSv1.2');
@@ -43,6 +44,8 @@ class HistoryTest extends TestCase
     }
 
     /**
+     * This may take some time to complete!
+     *
      * @covers History::transcribe()
      */
     public function testTranscribe()
