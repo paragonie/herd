@@ -119,7 +119,9 @@ class Config
         $config = new static();
         $config->coreVendorName = (string) ($decode['core-vendor'] ?? 'paragonie');
         if (!empty($decode['remotes'])) {
-            $config->remotes = (array) ($decode['remotes']);
+            /** @var array<int, array<string, mixed>> $remotes */
+            $remotes = (array) $decode['remotes'];
+            $config->remotes = $remotes;
         }
 
         /** @var array<string, int|bool> $policies */

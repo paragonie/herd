@@ -548,6 +548,7 @@ class History
 
         // As long as we have remotes left to query and have yet to establish quorum,
         // keep querying other remote Chronicles.
+        $r = 0;
         while ($quorum > 0 && !empty($remotes)) {
             // Select one at random:
             try {
