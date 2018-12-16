@@ -148,7 +148,7 @@ class Config
             }
         }
 
-        if (isset($policies['tls-cert-dir'])) {
+        if (!empty($policies['tls-cert-dir'])) {
             $config->tlsCertDir = (string) $policies['tls-cert-dir'];
         } else {
             $config->tlsCertDir = \dirname(__DIR__) . '/data/certs';

@@ -5,7 +5,8 @@
     "core-vendor-manage-keys-allow": false,
     "core-vendor-manage-keys-auto": false,
     "minimal-history": true,
-    "quorum": 0
+    "quorum": 0,
+    "tls-cert-dir": ""
   },
   "remotes": []
 }

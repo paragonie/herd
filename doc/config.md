@@ -137,3 +137,8 @@ properties:
 * `primary` (bool) indicates whether or not this is the primary source.
   Herd prioritizes secondary sources to minimize network usage (especially for
   the primary Chronicle).
+
+### `tls-cert-dir`
+
+Directory which stores the CA-Cert.pem files, provided by
+[Certainty](https://github.com/paragonie/certainty).
