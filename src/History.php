@@ -95,6 +95,7 @@ class History
             }
             if ($this->isValidNextEntry($up, $last)) {
                 if (!$this->quorumAgrees($remote, $up['summary'], $up['hash'])) {
+                    /* The quorum did not agree with this entry. */
                     continue;
                 }
                 $db->insert(
@@ -115,7 +116,11 @@ class History
                     $up['summary']
                 );
                 try {
-                    $this->parseContentsAndInsert($up['contents'], (int) $historyID, $up['summary']);
+                    $this->parseContentsAndInsert(
+                        $up['contents'],
+                        (int) $historyID,
+                        $up['summary']
+                    );
                 } catch (\Throwable $ex) {
                     $this->markAccepted((int) $historyID);
                 }

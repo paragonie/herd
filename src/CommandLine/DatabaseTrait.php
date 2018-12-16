@@ -47,7 +47,7 @@ trait DatabaseTrait
             return Factory::create('sqlite::memory:');
         }
         if ($data['database']['dsn'] === 'sqlite') {
-            return Factory::create($data['database']['dsn']);
+            return Factory::create((string) $data['database']['dsn']);
         }
         return Factory::create(
             (string) $data['database']['dsn'],
