@@ -7,4 +7,6 @@ for a trustless Public Key Infrastructure for software update signing.
 
 * [Command Line Interface](cli)
 * [Local configuration settings](config.md)
+* [Security Goals of HERD](SECURITY.md)
+
 
