@@ -24,7 +24,7 @@
     "ext-json": "*",
     "guzzlehttp/guzzle": "^6",
     "paragonie/blakechain": "^1",
-    "paragonie/certainty": "^2",
+    "paragonie/certainty": "^2.5",
     "paragonie/constant_time_encoding": "^2",
     "paragonie/easydb": "^2.7",
     "paragonie/sapient": "^1",
